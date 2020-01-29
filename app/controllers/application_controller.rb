@@ -5,45 +5,47 @@ class ApplicationController < Sinatra::Base
   end
   
   get '/' do
-    redirect '/recipes'
+    @recipes = Recipe.all
+    erb :index
   end
   
-  #index action
   get '/recipes' do
     @recipes = Recipe.all
-    erb :'/index'
+    erb :index
   end
   
-  #new action - WHY DO THESE HAVE TO GO FIRST?
   get '/recipes/new' do
-    erb :'/new'
+    erb :new
   end
   
-  #show action
-  get '/recipes/:id' do
-    @recipe = Recipe.find_by(params[:id])
-    erb :'/show'
-  end
-  
-  #new action
   post '/recipes' do
     @recipe = Recipe.create(:name => params[:name], :ingredients => params[:ingredients], :cook_time => params[:cook_time])
-    # @recipe.save
-    # binding.pry
-    redirect "/recipes/#{@recipe.id}"
+    redirect to "/recipes/#{@recipe.id}"
   end
   
-  #edit action
-  get '/recipes/:id/edit' do  
-    @recipe = Recipe.find(params[:id])
-    erb :'/edit'
+  get '/recipes/:id' do 
+    @recipe = Recipe.find_by_id(params[:id])
+    erb :show
   end
   
-  #delete action
-  delete '/recipes/:id' do 
-    @recipe = Recipe.find(params[:id])
+  get '/recipes/:id/edit' do
+    @recipe = Recipe.find_by_id(params[:id])
+    erb :edit
+  end
+  
+  patch '/recipes/:id' do
+    @recipe = Recipe.find_by_id(params[:id])
+    @recipe.name = params[:name]
+    @recipe.ingredients = params[:ingredients]
+    @recipe.cook_time = params[:cook_time]
+    @recipe.save
+    redirect to "/recipes/#{@recipe.id}"
+  end
+  
+  delete '/recipes/:id' do
+    @recipe = Recipe.find_by_id(params[:id])
     @recipe.delete
-    redirect to '/index'
+    redirect to '/recipes'
   end
-
+  
 end
